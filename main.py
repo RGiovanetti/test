@@ -5,11 +5,17 @@ from sklearn.metrics.pairwise import cosine_similarity
 import os
 from google.cloud import bigquery
 
+# Cargar las credenciales desde los secretos
+credentials_path = st.secrets["general"]["google_application_credentials"]
 
-# Establece la variable de entorno con la ruta a tu archivo de credenciales JSON
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'credenciales.json'
+# Guardar las credenciales en un archivo temporal
+with open("temp_credentials.json", "w") as temp_file:
+    temp_file.write(credentials_path)
 
-# Configura la conexión a BigQuery
+# Establecer la variable de entorno con la ruta al archivo de credenciales temporales
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "temp_credentials.json"
+
+# Configurar la conexión a BigQuery
 client = bigquery.Client(location="us-central1")
 
 # Verificar si el archivo existe antes de cargarlo
@@ -24,12 +30,12 @@ def load_data():
         url,
         category
     FROM 
-        divine-builder-431018-g4.horizon.Google_metadata
+        `divine-builder-431018-g4.horizon.Google_metadata`
     """
     estados = client.query(query).to_dataframe()
     return estados
-estados = load_data()
 
+estados = load_data()
 
 # Definir las funciones
 def filter_by_city(estados, stadium):
