@@ -6,13 +6,11 @@ import json
 from google.cloud import bigquery
 
 # Leer las credenciales desde los secretos de Streamlit
-credentials_json = st.secrets["GOOGLE_CREDENTIALS"]["value"]
+credentials_json = st.secrets["GOOGLE_CREDENTIALS"]
 
-# Convertir el JSON en un diccionario
-credentials_info = json.loads(credentials_json)
 
 # Configurar la conexión a BigQuery usando las credenciales desde el secreto
-credentials = service_account.Credentials.from_service_account_info(credentials_info)
+credentials = service_account.Credentials.from_service_account_info(credentials_json)
 client = bigquery.Client(credentials=credentials, location="us-central1")
 
 # Verificar si el archivo existe antes de cargarlo
