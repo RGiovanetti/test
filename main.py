@@ -3,7 +3,8 @@ import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics.pairwise import cosine_similarity
 import json
-from google.cloud import bigquery
+from google.cloud import bigquery 
+from google.oauth2 import service_account
 
 # Leer las credenciales desde los secretos de Streamlit
 credentials_json = st.secrets["GOOGLE_CREDENTIALS"]
