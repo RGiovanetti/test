@@ -3,16 +3,49 @@ import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics.pairwise import cosine_similarity
 import json
-from google.cloud import bigquery 
+from google.cloud import bigquery
 from google.oauth2 import service_account
 
 # Leer las credenciales desde los secretos de Streamlit
 credentials_json = st.secrets["GOOGLE_CREDENTIALS"]
 
-
 # Configurar la conexión a BigQuery usando las credenciales desde el secreto
 credentials = service_account.Credentials.from_service_account_info(credentials_json)
 client = bigquery.Client(credentials=credentials, location="us-central1")
+
+# Reemplaza esta URL con la URL de tu imagen de fondo
+background_image_url = "https://images.mlssoccer.com/image/private/t_editorial_landscape_12_desktop_2x/f_auto/mls-dcu-prd/xjinghak1hkkxzt5jvt7.jpg"
+
+st.markdown(f"""
+    <style>
+        .stApp {{
+            background-image: url("{background_image_url}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+        }}
+        .title {{
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            padding-top: 20px;
+        }}
+        .input-field {{
+            margin: 10px 0;
+        }}
+        .recommendations {{
+            font-size: 1.2em;
+        }}
+        .restaurant-card {{
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }}
+    </style>
+""", unsafe_allow_html=True)
 
 # Verificar si el archivo existe antes de cargarlo
 def load_data():
@@ -87,7 +120,13 @@ if st.button("Obtener recomendaciones"):
             recommendations = find_similar_restaurants(name, stadium)
             st.write(f"Recomendaciones para {name} cerca de {stadium}:")
             for _, row in recommendations.iterrows():
-                st.markdown(f"- [{row['name']}]({row['url']}) - Calificación: {row['avg_rating']}")
+                st.markdown(f"""
+                    <div class='restaurant-card'>
+                        <h4>{row['name']}</h4>
+                        <p>Calificación: {row['avg_rating']}</p>
+                        <a href="{row['url']}" target="_blank">Ver en Google Maps</a>
+                    </div>
+                """, unsafe_allow_html=True)
         except ValueError as e:
             st.error(str(e))
     else:
