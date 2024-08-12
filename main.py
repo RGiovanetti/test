@@ -2,21 +2,21 @@ import streamlit as st
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics.pairwise import cosine_similarity
-import os
+import json
+import toml
 from google.cloud import bigquery
 
-# Cargar las credenciales desde los secretos
-credentials_path = st.secrets["general"]["google_application_credentials"]
+# Leer el archivo secrets.toml
+secrets = toml.load("secrets.toml")
 
-# Guardar las credenciales en un archivo temporal
-with open("temp_credentials.json", "w") as temp_file:
-    temp_file.write(credentials_path)
+# Obtener las credenciales en formato JSON
+credentials_json = secrets["general"]["google_application_credentials"]
 
-# Establecer la variable de entorno con la ruta al archivo de credenciales temporales
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "temp_credentials.json"
+# Cargar las credenciales JSON
+credentials = json.loads(credentials_json)
 
-# Configurar la conexión a BigQuery
-client = bigquery.Client(location="us-central1")
+# Configurar BigQuery con las credenciales
+client = bigquery.Client.from_service_account_info(credentials, location="us-central1")
 
 # Verificar si el archivo existe antes de cargarlo
 def load_data():
