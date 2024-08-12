@@ -3,19 +3,13 @@ import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics.pairwise import cosine_similarity
 import json
-import toml
 from google.cloud import bigquery
 
-# Leer el archivo secrets.toml
-secrets = toml.load("secrets.toml")
+# Leer las credenciales desde los secretos de Streamlit Cloud
+credentials_json = st.secrets["general"]["google_application_credentials"]
 
-# Obtener las credenciales en formato JSON
-credentials_json = secrets["general"]["google_application_credentials"]
-
-# Cargar las credenciales JSON
+# Cargar las credenciales JSON directamente
 credentials = json.loads(credentials_json)
-
-# Configurar BigQuery con las credenciales
 client = bigquery.Client.from_service_account_info(credentials, location="us-central1")
 
 # Verificar si el archivo existe antes de cargarlo
@@ -30,7 +24,7 @@ def load_data():
         url,
         category
     FROM 
-        `divine-builder-431018-g4.horizon.Google_metadata`
+        divine-builder-431018-g4.horizon.Google_metadata
     """
     estados = client.query(query).to_dataframe()
     return estados
